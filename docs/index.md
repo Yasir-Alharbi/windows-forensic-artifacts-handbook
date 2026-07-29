@@ -2,16 +2,16 @@
 
 ## A Practical Guide to Evidence Correlation in Digital Forensics and Incident Response
 
+<figure class="dfir-hero-visual">
+  <img src="assets/dfir-detective-investigation.png" alt="Detective-style DFIR investigation visual with forensic and adversary-tracking elements">
+</figure>
+
 **Prepared by Yasir Alharbi**  
 Senior Cybersecurity Analyst | AI master's student | DFIR development track
 
 This handbook is an investigation-first guide to Windows forensic artifacts for SOC analysts, DFIR analysts, incident responders, threat hunters, malware analysts, and FOR508/GCFA-oriented learners.
 
 The central discipline is simple: separate observation, evidence, inference, assumption, and conclusion. Each chapter explains why an artifact exists, what it can and cannot prove, and how to correlate it with other evidence.
-
-<figure class="dfir-hero-visual">
-  <img src="assets/dfir-detective-investigation.png" alt="Detective-style DFIR investigation visual with forensic and adversary-tracking elements">
-</figure>
 
 !!! info "Author and Portfolio"
     This handbook was prepared by **Yasir Alharbi** as an independent educational DFIR reference focused on Windows forensic artifact correlation and incident reconstruction.
