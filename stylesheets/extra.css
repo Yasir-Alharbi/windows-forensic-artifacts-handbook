@@ -25,3 +25,24 @@
 .md-typeset pre > code {
   white-space: pre-wrap;
 }
+
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+.dfir-hero-visual {
+  margin: 1.8rem 0 1.6rem;
+}
+
+.dfir-hero-visual img {
+  display: block;
+  width: 100%;
+  max-height: 460px;
+  object-fit: cover;
+  object-position: center;
+  border: 1px solid rgba(51, 245, 223, .32);
+  border-radius: 16px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .34);
+}
