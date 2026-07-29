@@ -31,6 +31,7 @@ theme:
 
 nav:
   - Home: index.md
+  - Portfolio: https://yasir-alharbi.github.io/
   - Chapters:
       - "1. Chapter 1: NTFS Master File Table (MFT)": chapters/01-chapter-1-ntfs-master-file-table-mft.md
       - "2. Chapter 2: NTFS Update Sequence Number (USN) Change Journal": chapters/02-chapter-2-ntfs-update-sequence-number-usn-change-journal.md

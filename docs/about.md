@@ -2,6 +2,16 @@
 
 **Windows Forensic Artifacts: A Practical Guide to Evidence Correlation in Digital Forensics and Incident Response** is designed as a practical Windows artifact handbook focused on evidence correlation.
 
+## Prepared By
+
+This handbook was prepared by **Yasir Alharbi**, a Senior Cybersecurity Analyst and AI master's student developing practical depth in digital forensics and incident response.
+
+- Portfolio: [yasir-alharbi.github.io](https://yasir-alharbi.github.io/)
+- GitHub: [github.com/Yasir-Alharbi](https://github.com/Yasir-Alharbi)
+- LinkedIn: [linkedin.com/in/Yasir-T-Alharbi](https://www.linkedin.com/in/Yasir-T-Alharbi)
+
+This is an independent educational handbook and is not affiliated with SANS.
+
 ## Editorial Principles
 
 - Investigation first.
