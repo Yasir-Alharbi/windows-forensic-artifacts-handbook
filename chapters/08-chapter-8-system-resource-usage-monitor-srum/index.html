@@ -1,0 +1,2439 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Practical Guide to Evidence Correlation in Digital Forensics and Incident Response">
+      
+      
+        <meta name="author" content="Yasir Alharbi">
+      
+      
+        <link rel="canonical" href="https://yasir-alharbi.github.io/windows-forensic-artifacts-handbook/chapters/08-chapter-8-system-resource-usage-monitor-srum/">
+      
+      
+        <link rel="prev" href="../07-chapter-7-shimcache-appcompatcache/">
+      
+      
+        <link rel="next" href="../09-chapter-9-userassist/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>8. Chapter 8: System Resource Usage Monitor (SRUM) - Windows Forensic Artifacts</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-8-system-resource-usage-monitor-srum" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Windows Forensic Artifacts" class="md-header__button md-logo" aria-label="Windows Forensic Artifacts" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Windows Forensic Artifacts
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              8. Chapter 8: System Resource Usage Monitor (SRUM)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../01-chapter-1-ntfs-master-file-table-mft/" class="md-tabs__link">
+          
+  
+  
+  Chapters
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  About
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Windows Forensic Artifacts" class="md-nav__button md-logo" aria-label="Windows Forensic Artifacts" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Windows Forensic Artifacts
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapters
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapters
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-chapter-1-ntfs-master-file-table-mft/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. Chapter 1: NTFS Master File Table (MFT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-chapter-2-ntfs-update-sequence-number-usn-change-journal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. Chapter 2: NTFS Update Sequence Number (USN) Change Journal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-chapter-3-ntfs-logfile/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. Chapter 3: NTFS `$LogFile`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-chapter-4-windows-event-logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Chapter 4: Windows Event Logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-chapter-5-windows-prefetch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Chapter 5: Windows Prefetch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-chapter-6-amcache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Chapter 6: Amcache
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-chapter-7-shimcache-appcompatcache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. Chapter 7: ShimCache / AppCompatCache
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. Chapter 8: System Resource Usage Monitor (SRUM)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. Chapter 8: System Resource Usage Monitor (SRUM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Learning Objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-why-windows-created-this-artifact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Why Windows Created This Artifact
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-why-investigators-care" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Why Investigators Care
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-internal-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Internal Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-data-stored" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Data Stored
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-acquisition-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Acquisition Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Interpretation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-strengths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Strengths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-weaknesses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Weaknesses
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-common-mistakes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Common Mistakes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Common Mistakes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mistake-1-treating-bytes-sent-as-proven-exfiltration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 1: Treating Bytes Sent As Proven Exfiltration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-2-expecting-packet-level-detail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 2: Expecting Packet-Level Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-3-ignoring-time-bucket-granularity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 3: Ignoring Time Bucket Granularity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-4-parsing-without-supporting-hives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 4: Parsing Without Supporting Hives
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-5-ignoring-legitimate-high-volume-applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 5: Ignoring Legitimate High-Volume Applications
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-questions-it-can-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Questions It Can Answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-questions-it-cannot-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Questions It Cannot Answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-evidence-correlation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Evidence Correlation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="14. Evidence Correlation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#correlation-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Correlation Map
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-investigation-walkthrough" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Investigation Walkthrough
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="15. Investigation Walkthrough">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scenario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scenario
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-parse-srum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Parse SRUM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-confirm-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Confirm Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-check-file-staging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Check File Staging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-identify-destination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Identify Destination
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-write-the-finding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Write the Finding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-ascii-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. ASCII Timeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-investigators-mindset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Investigator's Mindset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18-key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. Key Takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#19-review-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Review Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#20-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-chapter-9-userassist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. Chapter 9: UserAssist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-chapter-10-shellbags/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10. Chapter 10: ShellBags
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-chapter-11-windows-shortcut-lnk-files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11. Chapter 11: Windows Shortcut (LNK) Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-chapter-12-jump-lists/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12. Chapter 12: Jump Lists
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-chapter-13-registry-run-keys-and-startup-folder-persistence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13. Chapter 13: Registry Run Keys and Startup Folder Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-chapter-14-windows-services-and-drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14. Chapter 14: Windows Services and Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-chapter-15-scheduled-tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. Chapter 15: Scheduled Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-chapter-16-powershell-logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16. Chapter 16: PowerShell Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-chapter-17-windows-management-instrumentation-wmi-persistence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17. Chapter 17: Windows Management Instrumentation (WMI) Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../18-chapter-18-rdp-logons-and-lateral-movement-artifacts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    18. Chapter 18: RDP, Logons, and Lateral Movement Artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-chapter-19-browser-and-download-artifacts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    19. Chapter 19: Browser and Download Artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-chapter-20-windows-defender-and-security-product-artifacts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    20. Chapter 20: Windows Defender and Security Product Artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-chapter-21-memory-forensics-as-corroborating-evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21. Chapter 21: Memory Forensics as Corroborating Evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-chapter-22-timeline-building-and-evidence-correlation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22. Chapter 22: Timeline Building and Evidence Correlation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23-chapter-23-anti-forensics-timestomping-and-evidence-conflict/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23. Chapter 23: Anti-Forensics, Timestomping, and Evidence Conflict
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24-chapter-24-end-to-end-investigation-walkthrough/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24. Chapter 24: End-to-End Investigation Walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Learning Objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-why-windows-created-this-artifact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Why Windows Created This Artifact
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-why-investigators-care" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Why Investigators Care
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-internal-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Internal Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-data-stored" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Data Stored
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-acquisition-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Acquisition Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Interpretation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-strengths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Strengths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-weaknesses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Weaknesses
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-common-mistakes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Common Mistakes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Common Mistakes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mistake-1-treating-bytes-sent-as-proven-exfiltration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 1: Treating Bytes Sent As Proven Exfiltration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-2-expecting-packet-level-detail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 2: Expecting Packet-Level Detail
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-3-ignoring-time-bucket-granularity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 3: Ignoring Time Bucket Granularity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-4-parsing-without-supporting-hives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 4: Parsing Without Supporting Hives
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-5-ignoring-legitimate-high-volume-applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 5: Ignoring Legitimate High-Volume Applications
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-questions-it-can-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Questions It Can Answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-questions-it-cannot-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Questions It Cannot Answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-evidence-correlation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Evidence Correlation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="14. Evidence Correlation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#correlation-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Correlation Map
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-investigation-walkthrough" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Investigation Walkthrough
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="15. Investigation Walkthrough">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scenario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scenario
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-parse-srum" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Parse SRUM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-confirm-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Confirm Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-check-file-staging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Check File Staging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-identify-destination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Identify Destination
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-write-the-finding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Write the Finding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-ascii-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. ASCII Timeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-investigators-mindset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Investigator's Mindset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18-key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. Key Takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#19-review-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Review Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#20-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="chapter-8-system-resource-usage-monitor-srum">Chapter 8: System Resource Usage Monitor (SRUM)<a class="headerlink" href="#chapter-8-system-resource-usage-monitor-srum" title="Permanent link">&para;</a></h1>
+<h2 id="1-learning-objectives">1. Learning Objectives<a class="headerlink" href="#1-learning-objectives" title="Permanent link">&para;</a></h2>
+<p>By the end of this chapter, the reader should be able to:</p>
+<ul>
+<li>Explain why Windows maintains System Resource Usage Monitor (SRUM) data.</li>
+<li>Locate and acquire <code>SRUDB.dat</code> and supporting files.</li>
+<li>Interpret SRUM as resource-usage evidence, especially for application and network activity.</li>
+<li>Correlate SRUM with execution artifacts, event logs, MFT, USN, and network telemetry.</li>
+<li>Avoid overstating SRUM as packet capture, exact process telemetry, or proof of exfiltration by itself.</li>
+</ul>
+<h2 id="2-introduction">2. Introduction<a class="headerlink" href="#2-introduction" title="Permanent link">&para;</a></h2>
+<p>System Resource Usage Monitor (SRUM) records resource usage data on modern Windows systems. It is commonly stored in an Extensible Storage Engine (ESE) database at:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>C:\Windows\System32\sru\SRUDB.dat
+</code></pre></div>
+<p>SRUM can provide evidence about application resource usage, network usage, connected networks, and related system activity. For investigators, it is especially useful when trying to determine whether a process or application transferred data during an incident window.</p>
+<p>SRUM is not packet capture. It does not show full URLs, payloads, commands, or complete process lineage. Its value is in resource and usage context.</p>
+<h2 id="3-why-windows-created-this-artifact">3. Why Windows Created This Artifact<a class="headerlink" href="#3-why-windows-created-this-artifact" title="Permanent link">&para;</a></h2>
+<p>Windows maintains SRUM to support diagnostics, resource monitoring, energy usage, and system behavior tracking. It helps the operating system understand how applications, services, and network interfaces consume resources over time.</p>
+<p>The forensic value is incidental. Windows did not create SRUM to prove data theft. However, because SRUM records application and network usage data, investigators can use it to support or challenge hypotheses about execution, network activity, and potential exfiltration.</p>
+<h2 id="4-why-investigators-care">4. Why Investigators Care<a class="headerlink" href="#4-why-investigators-care" title="Permanent link">&para;</a></h2>
+<p>SRUM helps answer questions that execution artifacts cannot answer alone.</p>
+<table>
+<thead>
+<tr>
+<th>Investigative Need</th>
+<th>SRUM Contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Application activity context</td>
+<td>May show resource usage associated with applications.</td>
+</tr>
+<tr>
+<td>Network usage magnitude</td>
+<td>Can show bytes sent and received by application or interface context.</td>
+</tr>
+<tr>
+<td>Exfiltration leads</td>
+<td>Can support investigation of unusual outbound data volume.</td>
+</tr>
+<tr>
+<td>Timeline support</td>
+<td>Provides time-bucketed resource usage evidence.</td>
+</tr>
+<tr>
+<td>Deleted executable support</td>
+<td>May preserve usage records after a program is gone.</td>
+</tr>
+<tr>
+<td>User context</td>
+<td>Some parsed records may include security identifiers that map to users.</td>
+</tr>
+<tr>
+<td>Network connectivity</td>
+<td>May show networks the system connected to.</td>
+</tr>
+</tbody>
+</table>
+<p>SRUM is often most useful when an alert says "data left the host" and the investigator needs to identify which application or user context might be associated with that transfer.</p>
+<h2 id="5-internal-structure">5. Internal Structure<a class="headerlink" href="#5-internal-structure" title="Permanent link">&para;</a></h2>
+<p>SRUM data is stored in an ESE database. Investigators usually interact with parsed output rather than raw database tables.</p>
+<p>Important concepts:</p>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Practical Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SRUDB.dat</code></td>
+<td>Main SRUM database.</td>
+</tr>
+<tr>
+<td>Transaction logs</td>
+<td>Supporting ESE files that may contain recent changes.</td>
+</tr>
+<tr>
+<td>SOFTWARE hive</td>
+<td>Often used by parsers to resolve identifiers and application names.</td>
+</tr>
+<tr>
+<td>Tables</td>
+<td>Store categories such as application resource usage and network usage.</td>
+</tr>
+<tr>
+<td>Time buckets</td>
+<td>Records are often aggregated rather than continuous per-event logs.</td>
+</tr>
+</tbody>
+</table>
+<p>Parser output depends on the tool and available supporting files.</p>
+<h2 id="6-data-stored">6. Data Stored<a class="headerlink" href="#6-data-stored" title="Permanent link">&para;</a></h2>
+<p>Parsed SRUM data may include:</p>
+<ul>
+<li>application or process name</li>
+<li>application identifier</li>
+<li>user security identifier (SID)</li>
+<li>timestamp or time bucket</li>
+<li>bytes sent</li>
+<li>bytes received</li>
+<li>interface type</li>
+<li>connected network information</li>
+<li>energy or resource usage values</li>
+<li>foreground/background related application context in some tables</li>
+</ul>
+<p>The most common investigative focus is network data usage by application or user context.</p>
+<h2 id="7-acquisition-methods">7. Acquisition Methods<a class="headerlink" href="#7-acquisition-methods" title="Permanent link">&para;</a></h2>
+<p>Acquire SRUM from:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>C:\Windows\System32\sru\SRUDB.dat
+</code></pre></div>
+<p>Also collect supporting files from the same directory, such as ESE logs and checkpoint files, when available:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>C:\Windows\System32\sru\SRU*.log
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>C:\Windows\System32\sru\SRU.chk
+</code></pre></div>
+<p>Collect the SOFTWARE hive as well because many parsers use it for resolution:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>C:\Windows\System32\config\SOFTWARE
+</code></pre></div>
+<p>Acquisition options:</p>
+<ul>
+<li>full disk image</li>
+<li>Volume Shadow Copy</li>
+<li>forensic triage tool</li>
+<li>endpoint response collection with locked-file support</li>
+</ul>
+<p>Live copying can fail because the database may be locked. Use tools that can safely acquire locked files or collect from a forensic image.</p>
+<p>Document:</p>
+<ul>
+<li>host name</li>
+<li>Windows version</li>
+<li>acquisition time in UTC</li>
+<li>database path</li>
+<li>supporting ESE files collected</li>
+<li>SOFTWARE hive collected</li>
+<li>parser and version</li>
+<li>whether the source was live or offline</li>
+</ul>
+<h2 id="8-interpretation">8. Interpretation<a class="headerlink" href="#8-interpretation" title="Permanent link">&para;</a></h2>
+<p>SRUM is resource-usage evidence.</p>
+<p>Example observation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Application: winupdate.exe
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>User SID: S-1-5-21-...
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>Time bucket: 2026-07-14 03:00 UTC
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>Bytes sent: 734,003,200
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>Bytes received: 12,582,912
+</code></pre></div>
+<p>Reasonable inference:</p>
+<ul>
+<li>Parsed SRUM data associates substantial outbound network usage with an application label resolving to <code>winupdate.exe</code> during the relevant time bucket.</li>
+<li>This supports investigation of possible data transfer by that application.</li>
+</ul>
+<p>Unsupported conclusion:</p>
+<ul>
+<li>"winupdate.exe exfiltrated 700 MB of stolen data."</li>
+</ul>
+<p>To support exfiltration, correlate with process telemetry, destination IPs, network logs, file access evidence, archive creation, command history, DLP logs, proxy logs, firewall logs, or packet capture.</p>
+<h2 id="9-strengths">9. Strengths<a class="headerlink" href="#9-strengths" title="Permanent link">&para;</a></h2>
+<p>SRUM has several strengths:</p>
+<ul>
+<li>Provides application-level resource usage context.</li>
+<li>Can support network data transfer investigations.</li>
+<li>May retain useful data after event logs roll over.</li>
+<li>Helps identify unusual application network usage.</li>
+<li>Can include user SID context.</li>
+<li>Useful when EDR telemetry is missing or incomplete.</li>
+<li>Correlates well with execution and file system artifacts.</li>
+</ul>
+<p>SRUM can be the artifact that turns "this program ran" into "this program also appears associated with unusual network volume."</p>
+<h2 id="10-weaknesses">10. Weaknesses<a class="headerlink" href="#10-weaknesses" title="Permanent link">&para;</a></h2>
+<p>SRUM has important weaknesses:</p>
+<ul>
+<li>It is aggregated resource data, not detailed event telemetry.</li>
+<li>It does not show full process lineage.</li>
+<li>It does not show command line.</li>
+<li>It does not show destination domains or URLs by itself.</li>
+<li>It does not prove file content was exfiltrated.</li>
+<li>Parser resolution may depend on supporting hives.</li>
+<li>Time buckets may be coarser than event logs.</li>
+<li>Database acquisition can be complicated on live systems.</li>
+</ul>
+<p>SRUM supports hypotheses about activity magnitude and timing. It does not replace network forensics.</p>
+<h2 id="11-common-mistakes">11. Common Mistakes<a class="headerlink" href="#11-common-mistakes" title="Permanent link">&para;</a></h2>
+<h3 id="mistake-1-treating-bytes-sent-as-proven-exfiltration">Mistake 1: Treating Bytes Sent As Proven Exfiltration<a class="headerlink" href="#mistake-1-treating-bytes-sent-as-proven-exfiltration" title="Permanent link">&para;</a></h3>
+<p>Outbound bytes can represent many things: update traffic, backup, sync, legitimate uploads, malware command and control, or exfiltration. Content and destination context are required.</p>
+<h3 id="mistake-2-expecting-packet-level-detail">Mistake 2: Expecting Packet-Level Detail<a class="headerlink" href="#mistake-2-expecting-packet-level-detail" title="Permanent link">&para;</a></h3>
+<p>SRUM is not packet capture. It does not provide payloads, full URLs, or complete connection records.</p>
+<h3 id="mistake-3-ignoring-time-bucket-granularity">Mistake 3: Ignoring Time Bucket Granularity<a class="headerlink" href="#mistake-3-ignoring-time-bucket-granularity" title="Permanent link">&para;</a></h3>
+<p>SRUM timing may be aggregated. Do not force second-level precision where the artifact does not support it.</p>
+<h3 id="mistake-4-parsing-without-supporting-hives">Mistake 4: Parsing Without Supporting Hives<a class="headerlink" href="#mistake-4-parsing-without-supporting-hives" title="Permanent link">&para;</a></h3>
+<p>Without the SOFTWARE hive or related context, application and identifier resolution may be weaker.</p>
+<h3 id="mistake-5-ignoring-legitimate-high-volume-applications">Mistake 5: Ignoring Legitimate High-Volume Applications<a class="headerlink" href="#mistake-5-ignoring-legitimate-high-volume-applications" title="Permanent link">&para;</a></h3>
+<p>Browsers, backup clients, cloud sync tools, update services, and collaboration apps can generate large traffic volumes. Baseline and context matter.</p>
+<h2 id="12-questions-it-can-answer">12. Questions It Can Answer<a class="headerlink" href="#12-questions-it-can-answer" title="Permanent link">&para;</a></h2>
+<p>SRUM can often help answer:</p>
+<ul>
+<li>Which applications show network usage during the incident window?</li>
+<li>Which user SID is associated with resource usage records?</li>
+<li>Was there unusual outbound data volume?</li>
+<li>Did a suspicious executable have resource or network usage?</li>
+<li>What networks or interfaces were involved?</li>
+<li>Does resource usage align with execution artifacts and alerts?</li>
+</ul>
+<h2 id="13-questions-it-cannot-answer">13. Questions It Cannot Answer<a class="headerlink" href="#13-questions-it-cannot-answer" title="Permanent link">&para;</a></h2>
+<p>SRUM cannot answer by itself:</p>
+<ul>
+<li>What exact data was transferred.</li>
+<li>Which remote URL or domain received the data.</li>
+<li>Whether the transfer was malicious.</li>
+<li>Which parent process launched the application.</li>
+<li>What command line was used.</li>
+<li>Whether a user intentionally caused the transfer.</li>
+<li>Whether no SRUM record means no network activity occurred.</li>
+</ul>
+<h2 id="14-evidence-correlation">14. Evidence Correlation<a class="headerlink" href="#14-evidence-correlation" title="Permanent link">&para;</a></h2>
+<p>SRUM is strongest when combined with network and endpoint telemetry.</p>
+<table>
+<thead>
+<tr>
+<th>Correlating Artifact</th>
+<th>Added Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prefetch</td>
+<td>Execution-related timing for the application.</td>
+</tr>
+<tr>
+<td>Amcache / ShimCache</td>
+<td>Program path and metadata context.</td>
+</tr>
+<tr>
+<td>Event Logs 4688</td>
+<td>Process creation and command line if enabled.</td>
+</tr>
+<tr>
+<td>MFT / USN</td>
+<td>File staging, archive creation, deletion, or cleanup.</td>
+</tr>
+<tr>
+<td>Browser artifacts</td>
+<td>Upload/download or web session context.</td>
+</tr>
+<tr>
+<td>Firewall / proxy logs</td>
+<td>Destination IP, domain, URL, and policy action.</td>
+</tr>
+<tr>
+<td>EDR telemetry</td>
+<td>Process lineage, network connections, hash, user session.</td>
+</tr>
+<tr>
+<td>Memory forensics</td>
+<td>Active connections, injected code, process context.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="correlation-map">Correlation Map<a class="headerlink" href="#correlation-map" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>SRUM: high outbound bytes for suspicious application
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>        |
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        +--&gt; Prefetch / 4688: did the application run then?
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        |
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        +--&gt; MFT / USN: were archives or sensitive files staged?
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        |
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        +--&gt; Proxy / firewall: where did the traffic go?
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        |
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        +--&gt; EDR: process lineage, command line, destination IP
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>        |
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>        +--&gt; DLP / server logs: what content left?
+</code></pre></div>
+<h2 id="15-investigation-walkthrough">15. Investigation Walkthrough<a class="headerlink" href="#15-investigation-walkthrough" title="Permanent link">&para;</a></h2>
+<h3 id="scenario">Scenario<a class="headerlink" href="#scenario" title="Permanent link">&para;</a></h3>
+<p>A workstation triggers an alert for possible data exfiltration. Network monitoring shows a large outbound transfer, but endpoint process telemetry is incomplete.</p>
+<h3 id="step-1-parse-srum">Step 1: Parse SRUM<a class="headerlink" href="#step-1-parse-srum" title="Permanent link">&para;</a></h3>
+<p>Observation:</p>
+<ul>
+<li>SRUM shows high outbound bytes associated with <code>rclone.exe</code> during the alert window.</li>
+<li>The user SID resolves to <code>CORP\alex</code>.</li>
+</ul>
+<p>Inference:</p>
+<ul>
+<li>SRUM supports that an application identified as <code>rclone.exe</code> was associated with significant outbound network usage in that time period.</li>
+</ul>
+<h3 id="step-2-confirm-execution">Step 2: Confirm Execution<a class="headerlink" href="#step-2-confirm-execution" title="Permanent link">&para;</a></h3>
+<p>Observation:</p>
+<ul>
+<li>Prefetch contains <code>RCLONE.EXE-...pf</code>.</li>
+<li>Event 4688 is unavailable, but Amcache contains path metadata.</li>
+</ul>
+<p>Inference:</p>
+<ul>
+<li>Execution-related artifacts support that <code>rclone.exe</code> ran on the host.</li>
+</ul>
+<h3 id="step-3-check-file-staging">Step 3: Check File Staging<a class="headerlink" href="#step-3-check-file-staging" title="Permanent link">&para;</a></h3>
+<p>Observation:</p>
+<ul>
+<li>MFT and USN show creation of <code>C:\Users\alex\AppData\Local\Temp\data.zip</code> shortly before SRUM network usage.</li>
+</ul>
+<p>Inference:</p>
+<ul>
+<li>File system evidence supports possible staging before outbound transfer.</li>
+</ul>
+<h3 id="step-4-identify-destination">Step 4: Identify Destination<a class="headerlink" href="#step-4-identify-destination" title="Permanent link">&para;</a></h3>
+<p>Observation:</p>
+<ul>
+<li>Firewall or proxy logs show outbound traffic to a cloud storage endpoint from the host during the same window.</li>
+</ul>
+<p>Inference:</p>
+<ul>
+<li>Network telemetry provides destination context that SRUM lacks.</li>
+</ul>
+<h3 id="step-5-write-the-finding">Step 5: Write the Finding<a class="headerlink" href="#step-5-write-the-finding" title="Permanent link">&para;</a></h3>
+<p>Precise wording:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>SRUM records show substantial outbound network usage associated with rclone.exe under the user context CORP\alex during the alert window. Prefetch and Amcache support execution-related activity for rclone.exe, and MFT/USN records show a temporary archive created shortly before the transfer. Firewall or proxy logs are required to confirm destination and strengthen any exfiltration conclusion.
+</code></pre></div>
+<h2 id="16-ascii-timeline">16. ASCII Timeline<a class="headerlink" href="#16-ascii-timeline" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>02:54:12  MFT / USN: data.zip created in user Temp
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>02:56:00  Prefetch: RCLONE.EXE execution-related timestamp
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>03:00:00  SRUM: high outbound bytes in application time bucket
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>03:02:15  Firewall: outbound session to cloud storage endpoint
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>03:08:40  USN: data.zip deleted
+</code></pre></div>
+<p>The SRUM bucket supports timing and magnitude. Destination and content require other logs.</p>
+<h2 id="17-investigators-mindset">17. Investigator's Mindset<a class="headerlink" href="#17-investigators-mindset" title="Permanent link">&para;</a></h2>
+<p>Use SRUM to ask better network and process questions.</p>
+<p>Ask:</p>
+<ul>
+<li>Which application is associated with the usage?</li>
+<li>Which user SID is associated with the record?</li>
+<li>How precise is the time bucket?</li>
+<li>Is the volume unusual for this application and host?</li>
+<li>Does execution evidence support the application ran then?</li>
+<li>Are there staged archives or sensitive files nearby in time?</li>
+<li>What network logs can identify the destination?</li>
+<li>What evidence would prove content, not just volume?</li>
+</ul>
+<p>SRUM is a correlation amplifier. It rarely stands alone.</p>
+<h2 id="18-key-takeaways">18. Key Takeaways<a class="headerlink" href="#18-key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li>SRUM stores resource usage data in <code>C:\Windows\System32\sru\SRUDB.dat</code>.</li>
+<li>It is useful for application and network usage analysis.</li>
+<li>SRUM can support exfiltration investigations but does not prove exfiltration by itself.</li>
+<li>It does not provide packet payloads, full URLs, command lines, or complete process lineage.</li>
+<li>Collect supporting ESE files and the SOFTWARE hive when possible.</li>
+<li>Strong SRUM findings correlate with execution artifacts, file staging evidence, firewall/proxy logs, and EDR telemetry.</li>
+</ul>
+<h2 id="19-review-questions">19. Review Questions<a class="headerlink" href="#19-review-questions" title="Permanent link">&para;</a></h2>
+<ol>
+<li>What kind of evidence does SRUM provide?</li>
+<li>Why is SRUM not equivalent to packet capture?</li>
+<li>Why should the SOFTWARE hive be collected with <code>SRUDB.dat</code>?</li>
+<li>What artifacts would you use to test an exfiltration hypothesis based on SRUM?</li>
+<li>Why should bytes sent be treated as a lead rather than proof of data theft?</li>
+</ol>
+<h2 id="20-references">20. References<a class="headerlink" href="#20-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Eric Zimmerman, "SrumECmd": https://github.com/EricZimmerman/Srum</li>
+<li>Forensics Artifacts Knowledge Base, "System Resource Usage Monitor": https://artifacts-kb.readthedocs.io/en/latest/sources/windows/SystemResourceUsageMonitor.html</li>
+<li>libyal, "System Resource Usage Monitor (SRUM) database": https://github.com/libyal/esedb-kb/blob/main/documentation/System%20Resource%20Usage%20Monitor%20%28SRUM%29.asciidoc</li>
+<li>Magnet Forensics, "SRUM: Forensic Analysis of Windows System Resource Utilization Monitor": https://www.magnetforensics.com/blog/srum-forensic-analysis-of-windows-system-resource-utilization-monitor/</li>
+<li>artifacts.help, "System Resource Usage Monitor (SRUM)": https://artefacts.help/windows_srum.html</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../07-chapter-7-shimcache-appcompatcache/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 7. Chapter 7: ShimCache / AppCompatCache">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                7. Chapter 7: ShimCache / AppCompatCache
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../09-chapter-9-userassist/" class="md-footer__link md-footer__link--next" aria-label="Next: 9. Chapter 9: UserAssist">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                9. Chapter 9: UserAssist
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

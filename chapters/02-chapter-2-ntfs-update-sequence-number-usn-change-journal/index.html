@@ -1,0 +1,2534 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Practical Guide to Evidence Correlation in Digital Forensics and Incident Response">
+      
+      
+        <meta name="author" content="Yasir Alharbi">
+      
+      
+        <link rel="canonical" href="https://yasir-alharbi.github.io/windows-forensic-artifacts-handbook/chapters/02-chapter-2-ntfs-update-sequence-number-usn-change-journal/">
+      
+      
+        <link rel="prev" href="../01-chapter-1-ntfs-master-file-table-mft/">
+      
+      
+        <link rel="next" href="../03-chapter-3-ntfs-logfile/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>2. Chapter 2: NTFS Update Sequence Number (USN) Change Journal - Windows Forensic Artifacts</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-2-ntfs-update-sequence-number-usn-change-journal" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Windows Forensic Artifacts" class="md-header__button md-logo" aria-label="Windows Forensic Artifacts" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Windows Forensic Artifacts
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              2. Chapter 2: NTFS Update Sequence Number (USN) Change Journal
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../01-chapter-1-ntfs-master-file-table-mft/" class="md-tabs__link">
+          
+  
+  
+  Chapters
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  About
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Windows Forensic Artifacts" class="md-nav__button md-logo" aria-label="Windows Forensic Artifacts" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Windows Forensic Artifacts
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapters
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapters
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-chapter-1-ntfs-master-file-table-mft/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. Chapter 1: NTFS Master File Table (MFT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. Chapter 2: NTFS Update Sequence Number (USN) Change Journal
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. Chapter 2: NTFS Update Sequence Number (USN) Change Journal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Learning Objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-why-windows-created-this-artifact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Why Windows Created This Artifact
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-why-investigators-care" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Why Investigators Care
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-internal-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Internal Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Internal Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#journal-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Journal Location
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usn-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        USN Records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reason-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reason Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-data-stored" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Data Stored
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-acquisition-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Acquisition Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Interpretation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-strengths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Strengths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-weaknesses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Weaknesses
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-common-mistakes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Common Mistakes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Common Mistakes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mistake-1-treating-reason-flags-as-a-narrative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 1: Treating Reason Flags As a Narrative
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-2-ignoring-journal-rollover" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 2: Ignoring Journal Rollover
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-3-assuming-rename-records-alone-provide-the-full-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 3: Assuming Rename Records Alone Provide the Full Path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-4-confusing-usn-order-with-global-time-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 4: Confusing USN Order With Global Time Order
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-5-claiming-execution-from-file-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 5: Claiming Execution From File Creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-questions-it-can-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Questions It Can Answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-questions-it-cannot-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Questions It Cannot Answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-evidence-correlation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Evidence Correlation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="14. Evidence Correlation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#correlation-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Correlation Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-investigation-walkthrough" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Investigation Walkthrough
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="15. Investigation Walkthrough">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scenario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scenario
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-identify-mass-rename-activity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Identify Mass Rename Activity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-look-for-preceding-file-writes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Look for Preceding File Writes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-correlate-process-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Correlate Process Evidence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-validate-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Validate Scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-write-the-finding-carefully" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Write the Finding Carefully
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-ascii-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. ASCII Timeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-investigators-mindset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Investigator's Mindset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18-key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. Key Takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#19-review-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Review Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#20-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-chapter-3-ntfs-logfile/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. Chapter 3: NTFS `$LogFile`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-chapter-4-windows-event-logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Chapter 4: Windows Event Logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-chapter-5-windows-prefetch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Chapter 5: Windows Prefetch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-chapter-6-amcache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Chapter 6: Amcache
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-chapter-7-shimcache-appcompatcache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. Chapter 7: ShimCache / AppCompatCache
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-chapter-8-system-resource-usage-monitor-srum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. Chapter 8: System Resource Usage Monitor (SRUM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-chapter-9-userassist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. Chapter 9: UserAssist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-chapter-10-shellbags/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10. Chapter 10: ShellBags
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-chapter-11-windows-shortcut-lnk-files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11. Chapter 11: Windows Shortcut (LNK) Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-chapter-12-jump-lists/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12. Chapter 12: Jump Lists
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-chapter-13-registry-run-keys-and-startup-folder-persistence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13. Chapter 13: Registry Run Keys and Startup Folder Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-chapter-14-windows-services-and-drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14. Chapter 14: Windows Services and Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-chapter-15-scheduled-tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. Chapter 15: Scheduled Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-chapter-16-powershell-logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16. Chapter 16: PowerShell Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-chapter-17-windows-management-instrumentation-wmi-persistence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17. Chapter 17: Windows Management Instrumentation (WMI) Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../18-chapter-18-rdp-logons-and-lateral-movement-artifacts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    18. Chapter 18: RDP, Logons, and Lateral Movement Artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-chapter-19-browser-and-download-artifacts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    19. Chapter 19: Browser and Download Artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-chapter-20-windows-defender-and-security-product-artifacts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    20. Chapter 20: Windows Defender and Security Product Artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-chapter-21-memory-forensics-as-corroborating-evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21. Chapter 21: Memory Forensics as Corroborating Evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-chapter-22-timeline-building-and-evidence-correlation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22. Chapter 22: Timeline Building and Evidence Correlation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23-chapter-23-anti-forensics-timestomping-and-evidence-conflict/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23. Chapter 23: Anti-Forensics, Timestomping, and Evidence Conflict
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24-chapter-24-end-to-end-investigation-walkthrough/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24. Chapter 24: End-to-End Investigation Walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Learning Objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-why-windows-created-this-artifact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Why Windows Created This Artifact
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-why-investigators-care" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Why Investigators Care
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-internal-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Internal Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Internal Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#journal-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Journal Location
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usn-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        USN Records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reason-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reason Flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-data-stored" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Data Stored
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-acquisition-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Acquisition Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Interpretation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-strengths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Strengths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-weaknesses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Weaknesses
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-common-mistakes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Common Mistakes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Common Mistakes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mistake-1-treating-reason-flags-as-a-narrative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 1: Treating Reason Flags As a Narrative
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-2-ignoring-journal-rollover" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 2: Ignoring Journal Rollover
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-3-assuming-rename-records-alone-provide-the-full-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 3: Assuming Rename Records Alone Provide the Full Path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-4-confusing-usn-order-with-global-time-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 4: Confusing USN Order With Global Time Order
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-5-claiming-execution-from-file-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 5: Claiming Execution From File Creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-questions-it-can-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Questions It Can Answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-questions-it-cannot-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Questions It Cannot Answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-evidence-correlation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Evidence Correlation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="14. Evidence Correlation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#correlation-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Correlation Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-investigation-walkthrough" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Investigation Walkthrough
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="15. Investigation Walkthrough">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scenario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scenario
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-identify-mass-rename-activity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Identify Mass Rename Activity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-look-for-preceding-file-writes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Look for Preceding File Writes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-correlate-process-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Correlate Process Evidence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-validate-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Validate Scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-write-the-finding-carefully" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Write the Finding Carefully
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-ascii-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. ASCII Timeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-investigators-mindset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Investigator's Mindset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18-key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. Key Takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#19-review-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Review Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#20-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="chapter-2-ntfs-update-sequence-number-usn-change-journal">Chapter 2: NTFS Update Sequence Number (USN) Change Journal<a class="headerlink" href="#chapter-2-ntfs-update-sequence-number-usn-change-journal" title="Permanent link">&para;</a></h1>
+<h2 id="1-learning-objectives">1. Learning Objectives<a class="headerlink" href="#1-learning-objectives" title="Permanent link">&para;</a></h2>
+<p>By the end of this chapter, the reader should be able to:</p>
+<ul>
+<li>Explain why NTFS maintains the Update Sequence Number (USN) Change Journal.</li>
+<li>Describe what a USN record can and cannot prove.</li>
+<li>Use USN records to reconstruct file creation, deletion, rename, and modification activity.</li>
+<li>Correlate USN evidence with the MFT, <code>$LogFile</code>, execution artifacts, and event logs.</li>
+<li>Avoid common mistakes involving reason flags, timestamps, and journal rollover.</li>
+</ul>
+<h2 id="2-introduction">2. Introduction<a class="headerlink" href="#2-introduction" title="Permanent link">&para;</a></h2>
+<p>The Update Sequence Number (USN) Change Journal is an NTFS feature that records changes to files, directories, and other NTFS objects on a volume. It is maintained per volume. As changes occur, NTFS appends records that identify the object changed and the type of change recorded.</p>
+<p>For investigators, the USN Change Journal often provides the missing motion between MFT snapshots. The MFT can show that a file exists or that a deleted record remains. The USN Change Journal may show that the file was created, renamed, overwritten, closed, or deleted during a relevant period.</p>
+<p>The journal is especially useful when answering questions like:</p>
+<ul>
+<li>Did the suspicious file appear recently?</li>
+<li>Was it renamed before execution?</li>
+<li>Was it deleted after the alert?</li>
+<li>Did a directory experience mass file modification?</li>
+<li>Is there evidence of staging, extraction, or cleanup?</li>
+</ul>
+<p>The journal is not permanent history. It has size limits and older records are eventually overwritten.</p>
+<h2 id="3-why-windows-created-this-artifact">3. Why Windows Created This Artifact<a class="headerlink" href="#3-why-windows-created-this-artifact" title="Permanent link">&para;</a></h2>
+<p>Windows did not create the USN Change Journal for investigators. NTFS uses it so applications and system services can efficiently learn what changed on a volume without repeatedly scanning the entire file system.</p>
+<p>Microsoft describes the journal as a persistent log of changes made to files on a volume. Each record indicates the changed object and the type of change. New records are appended to the stream.</p>
+<p>This design supports legitimate features such as indexing, backup, replication, and file synchronization. Forensics benefits because the same records can preserve recent file system activity.</p>
+<h2 id="4-why-investigators-care">4. Why Investigators Care<a class="headerlink" href="#4-why-investigators-care" title="Permanent link">&para;</a></h2>
+<p>The USN Change Journal is valuable because it records file system activity as a sequence of change events. It can help reconstruct attacker behavior that is only partially visible in the MFT.</p>
+<table>
+<thead>
+<tr>
+<th>Investigative Need</th>
+<th>USN Contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>File creation</td>
+<td>May show when a file or directory was created.</td>
+</tr>
+<tr>
+<td>Rename tracking</td>
+<td>May show old and new names through rename reason flags.</td>
+</tr>
+<tr>
+<td>Deletion evidence</td>
+<td>May show delete activity even when file content is gone.</td>
+</tr>
+<tr>
+<td>Staging detection</td>
+<td>Can reveal bursts of creates and writes in temporary paths.</td>
+</tr>
+<tr>
+<td>Ransomware triage</td>
+<td>Can show large-scale file overwrite, rename, or delete patterns.</td>
+</tr>
+<tr>
+<td>Cleanup analysis</td>
+<td>Can show post-execution deletion or movement.</td>
+</tr>
+<tr>
+<td>Timeline ordering</td>
+<td>USN values and timestamps help sequence file system activity.</td>
+</tr>
+</tbody>
+</table>
+<p>The journal can be more event-like than the MFT. The MFT tells the investigator about file metadata state. The USN Change Journal tells the investigator that NTFS recorded a change.</p>
+<h2 id="5-internal-structure">5. Internal Structure<a class="headerlink" href="#5-internal-structure" title="Permanent link">&para;</a></h2>
+<p>Only a practical subset of structure is needed for investigation.</p>
+<h3 id="journal-location">Journal Location<a class="headerlink" href="#journal-location" title="Permanent link">&para;</a></h3>
+<p>The journal is stored in NTFS metadata under <code>$Extend\$UsnJrnl</code>, commonly including the <code>$J</code> data stream that contains journal records.</p>
+<h3 id="usn-records">USN Records<a class="headerlink" href="#usn-records" title="Permanent link">&para;</a></h3>
+<p>USN records exist in multiple versions. Microsoft documents structures such as <code>USN_RECORD_V2</code>, <code>USN_RECORD_V3</code>, and <code>USN_RECORD_V4</code>. A parsed record commonly exposes:</p>
+<ul>
+<li>record length</li>
+<li>major and minor version</li>
+<li>file reference number</li>
+<li>parent file reference number</li>
+<li>USN value</li>
+<li>timestamp</li>
+<li>reason flags</li>
+<li>source information</li>
+<li>security identifier</li>
+<li>file attributes</li>
+<li>filename</li>
+</ul>
+<h3 id="reason-flags">Reason Flags<a class="headerlink" href="#reason-flags" title="Permanent link">&para;</a></h3>
+<p>Reason flags indicate categories of changes. A single record may contain multiple flags. Examples include file create, file delete, data overwrite, data extend, rename old name, rename new name, and close.</p>
+<p>Reason flags should be read as file system change categories, not as full explanations of human behavior.</p>
+<h2 id="6-data-stored">6. Data Stored<a class="headerlink" href="#6-data-stored" title="Permanent link">&para;</a></h2>
+<p>Parsed USN output typically includes:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Investigative Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Timestamp</td>
+<td>Places the change in time.</td>
+</tr>
+<tr>
+<td>USN</td>
+<td>Helps order records on the same volume.</td>
+</tr>
+<tr>
+<td>Filename</td>
+<td>Names the changed object at the time of the record.</td>
+</tr>
+<tr>
+<td>File reference number</td>
+<td>Links to MFT records.</td>
+</tr>
+<tr>
+<td>Parent reference number</td>
+<td>Helps reconstruct directory context.</td>
+</tr>
+<tr>
+<td>Reason flags</td>
+<td>Describes the type of file system change.</td>
+</tr>
+<tr>
+<td>File attributes</td>
+<td>Provides object type and attribute context.</td>
+</tr>
+<tr>
+<td>Source info</td>
+<td>May indicate system-originated change categories.</td>
+</tr>
+</tbody>
+</table>
+<p>The journal does not normally provide the process name, command line, username, or network source responsible for the change. Those must be obtained from other evidence.</p>
+<h2 id="7-acquisition-methods">7. Acquisition Methods<a class="headerlink" href="#7-acquisition-methods" title="Permanent link">&para;</a></h2>
+<p>Investigators can acquire USN data through:</p>
+<ul>
+<li>full disk or volume imaging</li>
+<li>targeted collection of <code>$Extend\$UsnJrnl:$J</code></li>
+<li>forensic collection frameworks</li>
+<li>endpoint response tools</li>
+<li>live queries through Windows APIs or forensic tooling</li>
+</ul>
+<p>Document the collection method carefully. A parser working against a forensic image is different from a live collection on an active endpoint. Live systems continue generating USN records during collection.</p>
+<p>Minimum documentation should include:</p>
+<ul>
+<li>volume identifier or drive letter</li>
+<li>collection time in UTC</li>
+<li>acquisition method</li>
+<li>tool and version</li>
+<li>whether the source was live or offline</li>
+<li>journal size and record range if available</li>
+</ul>
+<h2 id="8-interpretation">8. Interpretation<a class="headerlink" href="#8-interpretation" title="Permanent link">&para;</a></h2>
+<p>A USN record is evidence that NTFS recorded a change to a file system object. Interpretation depends on reason flags, filename, parent reference, timestamp, and correlation.</p>
+<p>Example observation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>2026-07-14 03:22:11 UTC
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Reason: FILE_CREATE | DATA_EXTEND | CLOSE
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Name: winupdate.exe
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>Parent: C:\Users\alex\AppData\Local\Temp
+</code></pre></div>
+<p>Reasonable inference:</p>
+<ul>
+<li>NTFS recorded creation and data growth for <code>winupdate.exe</code> in the user's temporary directory.</li>
+<li>The file was likely written or copied into that directory around that time.</li>
+</ul>
+<p>Unsupported conclusion:</p>
+<ul>
+<li>"Alex intentionally downloaded malware."</li>
+</ul>
+<p>To reach that conclusion, the investigator would need user context, browser evidence, command execution evidence, process lineage, or other supporting artifacts.</p>
+<h2 id="9-strengths">9. Strengths<a class="headerlink" href="#9-strengths" title="Permanent link">&para;</a></h2>
+<p>The USN Change Journal has several strengths:</p>
+<ul>
+<li>Records file system changes in sequence.</li>
+<li>Often captures creates, deletes, renames, writes, and closes.</li>
+<li>Useful for detecting short-lived files.</li>
+<li>Helpful for ransomware and mass-change investigations.</li>
+<li>Links to MFT file reference numbers.</li>
+<li>Can show rename chains better than a final MFT snapshot.</li>
+<li>Useful for validating or challenging timestamp interpretations.</li>
+</ul>
+<p>It is particularly useful when an attacker deletes tooling after execution. Even if the file is gone, the journal may still show that it existed and changed.</p>
+<h2 id="10-weaknesses">10. Weaknesses<a class="headerlink" href="#10-weaknesses" title="Permanent link">&para;</a></h2>
+<p>The USN Change Journal has important limits:</p>
+<ul>
+<li>It rolls over; older records are overwritten.</li>
+<li>It is volume-specific.</li>
+<li>It does not identify the responsible process by itself.</li>
+<li>It does not prove file execution.</li>
+<li>Reason flags can be misunderstood.</li>
+<li>Timestamps can still require time zone normalization.</li>
+<li>Parent path reconstruction depends on MFT context.</li>
+<li>Some file activity may be absent if records were overwritten before collection.</li>
+</ul>
+<p>The journal is a recent-change artifact, not a complete file system history.</p>
+<h2 id="11-common-mistakes">11. Common Mistakes<a class="headerlink" href="#11-common-mistakes" title="Permanent link">&para;</a></h2>
+<h3 id="mistake-1-treating-reason-flags-as-a-narrative">Mistake 1: Treating Reason Flags As a Narrative<a class="headerlink" href="#mistake-1-treating-reason-flags-as-a-narrative" title="Permanent link">&para;</a></h3>
+<p>Reason flags are categories of file system change. They are not a full story. <code>DATA_OVERWRITE</code> does not explain why data was overwritten. <code>FILE_DELETE</code> does not identify who deleted the file.</p>
+<h3 id="mistake-2-ignoring-journal-rollover">Mistake 2: Ignoring Journal Rollover<a class="headerlink" href="#mistake-2-ignoring-journal-rollover" title="Permanent link">&para;</a></h3>
+<p>If the journal no longer contains records from the incident window, absence of evidence is not evidence of absence. The records may have aged out.</p>
+<h3 id="mistake-3-assuming-rename-records-alone-provide-the-full-path">Mistake 3: Assuming Rename Records Alone Provide the Full Path<a class="headerlink" href="#mistake-3-assuming-rename-records-alone-provide-the-full-path" title="Permanent link">&para;</a></h3>
+<p>Rename evidence often needs MFT parent-reference reconstruction. Without reliable parent context, the investigator may only have a filename and object reference.</p>
+<h3 id="mistake-4-confusing-usn-order-with-global-time-order">Mistake 4: Confusing USN Order With Global Time Order<a class="headerlink" href="#mistake-4-confusing-usn-order-with-global-time-order" title="Permanent link">&para;</a></h3>
+<p>USN values help order records on the same volume. They should not be compared as global sequence numbers across different volumes or systems.</p>
+<h3 id="mistake-5-claiming-execution-from-file-creation">Mistake 5: Claiming Execution From File Creation<a class="headerlink" href="#mistake-5-claiming-execution-from-file-creation" title="Permanent link">&para;</a></h3>
+<p>File creation and file execution are different events. Execution requires correlation with execution artifacts or process telemetry.</p>
+<h2 id="12-questions-it-can-answer">12. Questions It Can Answer<a class="headerlink" href="#12-questions-it-can-answer" title="Permanent link">&para;</a></h2>
+<p>The USN Change Journal can often help answer:</p>
+<ul>
+<li>Was a file created, renamed, modified, or deleted during the available journal window?</li>
+<li>Did a suspicious file have a previous or later name?</li>
+<li>Did activity occur in a staging directory before execution evidence?</li>
+<li>Were many files modified or renamed in a short period?</li>
+<li>Does the file system show cleanup after an alert?</li>
+<li>Does USN timing support or contradict MFT timestamp interpretation?</li>
+</ul>
+<h2 id="13-questions-it-cannot-answer">13. Questions It Cannot Answer<a class="headerlink" href="#13-questions-it-cannot-answer" title="Permanent link">&para;</a></h2>
+<p>The USN Change Journal cannot answer by itself:</p>
+<ul>
+<li>Which process caused the change.</li>
+<li>Which user intentionally caused the change.</li>
+<li>Whether the file executed.</li>
+<li>Whether the file was malicious.</li>
+<li>Whether the change came from a download, extraction, script, installer, malware, or user copy operation.</li>
+<li>Whether missing records prove that no change occurred.</li>
+</ul>
+<h2 id="14-evidence-correlation">14. Evidence Correlation<a class="headerlink" href="#14-evidence-correlation" title="Permanent link">&para;</a></h2>
+<p>USN evidence is strongest when paired with other artifacts.</p>
+<table>
+<thead>
+<tr>
+<th>Correlating Artifact</th>
+<th>Added Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MFT</td>
+<td>Current or residual metadata, parent references, timestamps, allocation state.</td>
+</tr>
+<tr>
+<td><code>$LogFile</code></td>
+<td>Lower-level NTFS transaction context, often useful near the same time window.</td>
+</tr>
+<tr>
+<td>Prefetch</td>
+<td>Execution evidence for programs.</td>
+</tr>
+<tr>
+<td>Amcache</td>
+<td>Program inventory and execution-related metadata.</td>
+</tr>
+<tr>
+<td>Event Logs</td>
+<td>Logon, process, service, scheduled task, PowerShell, and security context.</td>
+</tr>
+<tr>
+<td>Browser artifacts</td>
+<td>Download origin and user activity context.</td>
+</tr>
+<tr>
+<td>LNK / Jump Lists</td>
+<td>User or shell interaction with files.</td>
+</tr>
+<tr>
+<td>EDR telemetry</td>
+<td>Process lineage, command line, hash, network connection, and user session.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="correlation-pattern">Correlation Pattern<a class="headerlink" href="#correlation-pattern" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>USN: file created in Temp
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  |
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  +-- MFT: file still allocated, timestamps align
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  |
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  +-- Prefetch: same executable launched minutes later
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  |
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  +-- Event logs: user logged on interactively
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  |
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>  +-- Browser history: download from suspicious URL
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>  |
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>  +-- EDR: process spawned PowerShell and made network connection
+</code></pre></div>
+<p>The final conclusion should reflect the combined evidence, not the USN record alone.</p>
+<h2 id="15-investigation-walkthrough">15. Investigation Walkthrough<a class="headerlink" href="#15-investigation-walkthrough" title="Permanent link">&para;</a></h2>
+<h3 id="scenario">Scenario<a class="headerlink" href="#scenario" title="Permanent link">&para;</a></h3>
+<p>An analyst is investigating suspected ransomware activity on a file server. Users report that shared documents were renamed with a new extension.</p>
+<h3 id="step-1-identify-mass-rename-activity">Step 1: Identify Mass Rename Activity<a class="headerlink" href="#step-1-identify-mass-rename-activity" title="Permanent link">&para;</a></h3>
+<p>Observation:</p>
+<ul>
+<li>USN records show many files with rename reason flags.</li>
+<li>The activity is concentrated under shared project directories.</li>
+<li>Records occur within a tight time window.</li>
+</ul>
+<p>Inference:</p>
+<ul>
+<li>NTFS recorded mass rename activity consistent with a ransomware-like pattern.</li>
+</ul>
+<h3 id="step-2-look-for-preceding-file-writes">Step 2: Look for Preceding File Writes<a class="headerlink" href="#step-2-look-for-preceding-file-writes" title="Permanent link">&para;</a></h3>
+<p>Observation:</p>
+<ul>
+<li>Before the rename burst, USN records show data overwrite or data extend activity on many files.</li>
+</ul>
+<p>Inference:</p>
+<ul>
+<li>Files may have been modified before rename. This supports an encryption or overwrite hypothesis, but file content analysis is needed to confirm.</li>
+</ul>
+<h3 id="step-3-correlate-process-evidence">Step 3: Correlate Process Evidence<a class="headerlink" href="#step-3-correlate-process-evidence" title="Permanent link">&para;</a></h3>
+<p>Observation:</p>
+<ul>
+<li>Event logs or EDR telemetry show a process running under a service account during the same period.</li>
+<li>The process path appears in Prefetch or Amcache on the affected host.</li>
+</ul>
+<p>Inference:</p>
+<ul>
+<li>The process is a candidate cause of the mass file changes.</li>
+</ul>
+<h3 id="step-4-validate-scope">Step 4: Validate Scope<a class="headerlink" href="#step-4-validate-scope" title="Permanent link">&para;</a></h3>
+<p>Observation:</p>
+<ul>
+<li>USN records show affected directories and filenames.</li>
+<li>MFT output shows which renamed files remain allocated.</li>
+</ul>
+<p>Inference:</p>
+<ul>
+<li>The investigator can estimate affected scope and prioritize recovery.</li>
+</ul>
+<h3 id="step-5-write-the-finding-carefully">Step 5: Write the Finding Carefully<a class="headerlink" href="#step-5-write-the-finding-carefully" title="Permanent link">&para;</a></h3>
+<p>Precise wording:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>USN records on the data volume show a high-volume sequence of file overwrite and rename activity between 2026-07-14 01:18:22 UTC and 2026-07-14 01:24:09 UTC. The affected paths are concentrated under the shared project directories. EDR process telemetry from the same interval should be used to attribute the activity to a specific process and account.
+</code></pre></div>
+<h2 id="16-ascii-timeline">16. ASCII Timeline<a class="headerlink" href="#16-ascii-timeline" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>01:18:22  USN: DATA_OVERWRITE on multiple shared documents
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>01:18:25  USN: RENAME_OLD_NAME / RENAME_NEW_NAME sequence begins
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>01:19:10  USN: hundreds of renamed files under \\Share\Projects
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>01:22:44  EDR: suspicious process still active
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>01:24:09  USN: rename burst ends
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>01:25:31  Event log: service stopped / process terminated
+</code></pre></div>
+<p>The timeline supports sequencing. Attribution requires process and account evidence.</p>
+<h2 id="17-investigators-mindset">17. Investigator's Mindset<a class="headerlink" href="#17-investigators-mindset" title="Permanent link">&para;</a></h2>
+<p>Use the USN Change Journal to detect movement in the file system. Ask what changed, when it changed, and how those changes relate to other evidence.</p>
+<p>Good investigative questions include:</p>
+<ul>
+<li>Is this change isolated or part of a burst?</li>
+<li>Does the record show creation, rename, write, delete, or close activity?</li>
+<li>Does the same file reference appear under multiple names?</li>
+<li>Does MFT data support the reconstructed path?</li>
+<li>Did execution evidence occur before or after the file change?</li>
+<li>Could backup, indexing, antivirus, sync software, or installation activity explain the pattern?</li>
+</ul>
+<p>The USN Change Journal is excellent for finding leads. It still needs corroboration before strong conclusions.</p>
+<h2 id="18-key-takeaways">18. Key Takeaways<a class="headerlink" href="#18-key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The USN Change Journal records NTFS file system changes on a volume.</li>
+<li>It is useful for creation, deletion, rename, write, and mass-change investigations.</li>
+<li>USN values help sequence records on the same volume.</li>
+<li>Reason flags describe change categories, not user intent.</li>
+<li>The journal rolls over, so missing records may simply be gone.</li>
+<li>USN evidence does not identify the responsible process or prove execution by itself.</li>
+<li>Strong findings correlate USN records with MFT, <code>$LogFile</code>, execution artifacts, event logs, and endpoint telemetry.</li>
+</ul>
+<h2 id="19-review-questions">19. Review Questions<a class="headerlink" href="#19-review-questions" title="Permanent link">&para;</a></h2>
+<ol>
+<li>How does the USN Change Journal differ from the MFT?</li>
+<li>Why is journal rollover important during incident response?</li>
+<li>What does a rename reason flag prove, and what does it not prove?</li>
+<li>Which artifacts would you use to identify the process responsible for a USN-recorded file change?</li>
+<li>How can USN records help investigate ransomware-like activity?</li>
+</ol>
+<h2 id="20-references">20. References<a class="headerlink" href="#20-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Microsoft Learn, "fsutil usn": https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/fsutil-usn</li>
+<li>Microsoft Learn, "USN_RECORD_V2 structure": https://learn.microsoft.com/en-us/windows/win32/api/winioctl/ns-winioctl-usn_record_v2</li>
+<li>Microsoft Learn, "USN_RECORD_V4 structure": https://learn.microsoft.com/en-us/windows/win32/api/winioctl/ns-winioctl-usn_record_v4</li>
+<li>Microsoft Learn, "READ_USN_JOURNAL_DATA_V0 structure": https://learn.microsoft.com/en-us/windows/win32/api/winioctl/ns-winioctl-read_usn_journal_data_v0</li>
+<li>Microsoft Learn, "Walking a Buffer of Change Journal Records": https://learn.microsoft.com/en-us/windows/win32/fileio/walking-a-buffer-of-change-journal-records</li>
+<li>Eric Zimmerman, "MFTECmd": https://github.com/EricZimmerman/MFTECmd</li>
+<li>Velociraptor artifact definition, "Windows.NTFS.MFT": https://github.com/Velocidex/velociraptor/blob/master/artifacts/definitions/Windows/NTFS/MFT.yaml</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../01-chapter-1-ntfs-master-file-table-mft/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 1. Chapter 1: NTFS Master File Table (MFT)">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                1. Chapter 1: NTFS Master File Table (MFT)
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../03-chapter-3-ntfs-logfile/" class="md-footer__link md-footer__link--next" aria-label="Next: 3. Chapter 3: NTFS `$LogFile`">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                3. Chapter 3: NTFS `$LogFile`
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

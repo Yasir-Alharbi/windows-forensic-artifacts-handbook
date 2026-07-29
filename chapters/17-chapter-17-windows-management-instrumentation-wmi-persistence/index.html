@@ -1,0 +1,2437 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Practical Guide to Evidence Correlation in Digital Forensics and Incident Response">
+      
+      
+        <meta name="author" content="Yasir Alharbi">
+      
+      
+        <link rel="canonical" href="https://yasir-alharbi.github.io/windows-forensic-artifacts-handbook/chapters/17-chapter-17-windows-management-instrumentation-wmi-persistence/">
+      
+      
+        <link rel="prev" href="../16-chapter-16-powershell-logging/">
+      
+      
+        <link rel="next" href="../18-chapter-18-rdp-logons-and-lateral-movement-artifacts/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>17. Chapter 17: Windows Management Instrumentation (WMI) Persistence - Windows Forensic Artifacts</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-17-windows-management-instrumentation-wmi-persistence" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Windows Forensic Artifacts" class="md-header__button md-logo" aria-label="Windows Forensic Artifacts" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Windows Forensic Artifacts
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              17. Chapter 17: Windows Management Instrumentation (WMI) Persistence
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../01-chapter-1-ntfs-master-file-table-mft/" class="md-tabs__link">
+          
+  
+  
+  Chapters
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  About
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Windows Forensic Artifacts" class="md-nav__button md-logo" aria-label="Windows Forensic Artifacts" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Windows Forensic Artifacts
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapters
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapters
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-chapter-1-ntfs-master-file-table-mft/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. Chapter 1: NTFS Master File Table (MFT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-chapter-2-ntfs-update-sequence-number-usn-change-journal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. Chapter 2: NTFS Update Sequence Number (USN) Change Journal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-chapter-3-ntfs-logfile/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. Chapter 3: NTFS `$LogFile`
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-chapter-4-windows-event-logs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. Chapter 4: Windows Event Logs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-chapter-5-windows-prefetch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. Chapter 5: Windows Prefetch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-chapter-6-amcache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. Chapter 6: Amcache
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-chapter-7-shimcache-appcompatcache/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. Chapter 7: ShimCache / AppCompatCache
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-chapter-8-system-resource-usage-monitor-srum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. Chapter 8: System Resource Usage Monitor (SRUM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-chapter-9-userassist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9. Chapter 9: UserAssist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-chapter-10-shellbags/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10. Chapter 10: ShellBags
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-chapter-11-windows-shortcut-lnk-files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11. Chapter 11: Windows Shortcut (LNK) Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-chapter-12-jump-lists/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12. Chapter 12: Jump Lists
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-chapter-13-registry-run-keys-and-startup-folder-persistence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13. Chapter 13: Registry Run Keys and Startup Folder Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-chapter-14-windows-services-and-drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14. Chapter 14: Windows Services and Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-chapter-15-scheduled-tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15. Chapter 15: Scheduled Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-chapter-16-powershell-logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16. Chapter 16: PowerShell Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17. Chapter 17: Windows Management Instrumentation (WMI) Persistence
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17. Chapter 17: Windows Management Instrumentation (WMI) Persistence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Learning Objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-why-windows-created-this-artifact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Why Windows Created This Artifact
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-why-investigators-care" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Why Investigators Care
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-internal-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Internal Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-data-stored" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Data Stored
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-acquisition-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Acquisition Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Interpretation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-strengths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Strengths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-weaknesses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Weaknesses
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-common-mistakes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Common Mistakes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Common Mistakes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mistake-1-looking-only-for-consumers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 1: Looking Only for Consumers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-2-ignoring-the-trigger-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 2: Ignoring the Trigger Query
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-3-treating-subscription-presence-as-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 3: Treating Subscription Presence As Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-4-ignoring-legitimate-wmi-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 4: Ignoring Legitimate WMI Use
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-5-ignoring-referenced-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 5: Ignoring Referenced Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-questions-it-can-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Questions It Can Answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-questions-it-cannot-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Questions It Cannot Answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-evidence-correlation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Evidence Correlation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="14. Evidence Correlation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#correlation-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Correlation Map
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-investigation-walkthrough" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Investigation Walkthrough
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="15. Investigation Walkthrough">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scenario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scenario
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-enumerate-wmi-subscriptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Enumerate WMI Subscriptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-inspect-consumer-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Inspect Consumer Action
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-validate-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Validate Binding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-correlate-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Correlate Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-write-the-finding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Write the Finding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-ascii-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. ASCII Timeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-investigators-mindset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Investigator's Mindset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18-key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. Key Takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#19-review-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Review Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#20-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../18-chapter-18-rdp-logons-and-lateral-movement-artifacts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    18. Chapter 18: RDP, Logons, and Lateral Movement Artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-chapter-19-browser-and-download-artifacts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    19. Chapter 19: Browser and Download Artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-chapter-20-windows-defender-and-security-product-artifacts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    20. Chapter 20: Windows Defender and Security Product Artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-chapter-21-memory-forensics-as-corroborating-evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21. Chapter 21: Memory Forensics as Corroborating Evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-chapter-22-timeline-building-and-evidence-correlation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22. Chapter 22: Timeline Building and Evidence Correlation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23-chapter-23-anti-forensics-timestomping-and-evidence-conflict/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    23. Chapter 23: Anti-Forensics, Timestomping, and Evidence Conflict
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24-chapter-24-end-to-end-investigation-walkthrough/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24. Chapter 24: End-to-End Investigation Walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-learning-objectives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Learning Objectives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-why-windows-created-this-artifact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Why Windows Created This Artifact
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-why-investigators-care" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Why Investigators Care
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-internal-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Internal Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-data-stored" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Data Stored
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-acquisition-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Acquisition Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Interpretation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-strengths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Strengths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-weaknesses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Weaknesses
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-common-mistakes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Common Mistakes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Common Mistakes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mistake-1-looking-only-for-consumers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 1: Looking Only for Consumers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-2-ignoring-the-trigger-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 2: Ignoring the Trigger Query
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-3-treating-subscription-presence-as-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 3: Treating Subscription Presence As Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-4-ignoring-legitimate-wmi-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 4: Ignoring Legitimate WMI Use
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mistake-5-ignoring-referenced-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mistake 5: Ignoring Referenced Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-questions-it-can-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Questions It Can Answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-questions-it-cannot-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Questions It Cannot Answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-evidence-correlation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Evidence Correlation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="14. Evidence Correlation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#correlation-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Correlation Map
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-investigation-walkthrough" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Investigation Walkthrough
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="15. Investigation Walkthrough">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scenario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scenario
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-enumerate-wmi-subscriptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Enumerate WMI Subscriptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-inspect-consumer-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Inspect Consumer Action
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-validate-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Validate Binding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-correlate-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Correlate Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-write-the-finding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Write the Finding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-ascii-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. ASCII Timeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-investigators-mindset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Investigator's Mindset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18-key-takeaways" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. Key Takeaways
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#19-review-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Review Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#20-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="chapter-17-windows-management-instrumentation-wmi-persistence">Chapter 17: Windows Management Instrumentation (WMI) Persistence<a class="headerlink" href="#chapter-17-windows-management-instrumentation-wmi-persistence" title="Permanent link">&para;</a></h1>
+<h2 id="1-learning-objectives">1. Learning Objectives<a class="headerlink" href="#1-learning-objectives" title="Permanent link">&para;</a></h2>
+<p>By the end of this chapter, the reader should be able to:</p>
+<ul>
+<li>Explain why Windows Management Instrumentation (WMI) exists.</li>
+<li>Describe permanent WMI event subscriptions using filters, consumers, and bindings.</li>
+<li>Identify disk and telemetry sources relevant to WMI persistence.</li>
+<li>Interpret WMI evidence as trigger-action configuration requiring execution validation.</li>
+<li>Correlate WMI artifacts with PowerShell logs, process telemetry, MFT, USN, services, and event logs.</li>
+</ul>
+<h2 id="2-introduction">2. Introduction<a class="headerlink" href="#2-introduction" title="Permanent link">&para;</a></h2>
+<p>Windows Management Instrumentation (WMI) is a management infrastructure for Windows. Administrators and applications use it to query system state, automate management, and respond to events.</p>
+<p>Attackers abuse WMI for discovery, remote execution, lateral movement, and persistence. One especially important technique is the permanent WMI event subscription. A subscription can define a condition and an action so that when the condition occurs, WMI executes the configured consumer.</p>
+<p>WMI persistence is powerful because it can be less obvious than Run keys, services, or scheduled tasks. It also may execute under high-privilege context depending on the consumer and configuration.</p>
+<h2 id="3-why-windows-created-this-artifact">3. Why Windows Created This Artifact<a class="headerlink" href="#3-why-windows-created-this-artifact" title="Permanent link">&para;</a></h2>
+<p>Microsoft describes WMI as infrastructure for management data and operations on Windows-based operating systems. It gives scripts and applications a uniform interface for obtaining management data and performing operations locally or remotely.</p>
+<p>Permanent event consumers allow WMI to respond to events. Microsoft documents that a permanent event consumer uses persistent objects and filters to capture WMI events; when an event matches the filter, WMI loads the consumer and notifies it.</p>
+<p>This is legitimate automation infrastructure. The same eventing model can be abused for persistence.</p>
+<h2 id="4-why-investigators-care">4. Why Investigators Care<a class="headerlink" href="#4-why-investigators-care" title="Permanent link">&para;</a></h2>
+<p>Investigators care because WMI subscriptions can hide attacker logic in a management database rather than in obvious Startup folders or service names.</p>
+<table>
+<thead>
+<tr>
+<th>Investigative Need</th>
+<th>WMI Contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Persistence discovery</td>
+<td>Event subscriptions can execute commands when triggers occur.</td>
+</tr>
+<tr>
+<td>Trigger analysis</td>
+<td>Filters reveal what condition causes execution.</td>
+</tr>
+<tr>
+<td>Action analysis</td>
+<td>Consumers reveal command, script, or action content.</td>
+</tr>
+<tr>
+<td>Binding validation</td>
+<td>Bindings connect trigger to action.</td>
+</tr>
+<tr>
+<td>Remote activity</td>
+<td>WMI is often used for remote administration and lateral movement.</td>
+</tr>
+<tr>
+<td>Anti-forensics awareness</td>
+<td>Persistence may exist without a normal executable in Startup or Run keys.</td>
+</tr>
+<tr>
+<td>ATT&amp;CK mapping</td>
+<td>Aligns with MITRE ATT&amp;CK T1546.003.</td>
+</tr>
+</tbody>
+</table>
+<p>WMI persistence is a strong candidate when malware reappears but common autorun locations are clean.</p>
+<h2 id="5-internal-structure">5. Internal Structure<a class="headerlink" href="#5-internal-structure" title="Permanent link">&para;</a></h2>
+<p>Permanent WMI event subscriptions are usually understood through three objects.</p>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>Role</th>
+<th>Practical Question</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>__EventFilter</code></td>
+<td>Trigger condition</td>
+<td>What event is being watched?</td>
+</tr>
+<tr>
+<td>Event consumer</td>
+<td>Action</td>
+<td>What happens when the filter matches?</td>
+</tr>
+<tr>
+<td><code>__FilterToConsumerBinding</code></td>
+<td>Connector</td>
+<td>Which trigger is connected to which action?</td>
+</tr>
+</tbody>
+</table>
+<p>Common consumer classes include:</p>
+<ul>
+<li><code>CommandLineEventConsumer</code></li>
+<li><code>ActiveScriptEventConsumer</code></li>
+<li><code>LogFileEventConsumer</code></li>
+<li><code>NTEventLogEventConsumer</code></li>
+</ul>
+<p><code>CommandLineEventConsumer</code> is especially important. Microsoft documents that it starts an arbitrary process on the local system when an event is delivered to it.</p>
+<p>Persistent WMI repository data is commonly stored under:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>C:\Windows\System32\wbem\Repository\
+</code></pre></div>
+<p>Important files may include <code>OBJECTS.DATA</code>, index files, and mapping files depending on Windows version and repository state.</p>
+<h2 id="6-data-stored">6. Data Stored<a class="headerlink" href="#6-data-stored" title="Permanent link">&para;</a></h2>
+<p>WMI persistence analysis may expose:</p>
+<ul>
+<li>namespace</li>
+<li>filter name</li>
+<li>WMI Query Language (WQL) query</li>
+<li>event consumer name</li>
+<li>consumer class</li>
+<li>command line or script text</li>
+<li>filter-to-consumer binding</li>
+<li>creator SID or security context where available</li>
+<li>repository timestamps</li>
+<li>event log records</li>
+<li>Sysmon WMI events if configured</li>
+</ul>
+<p>The most important investigative question is whether a valid filter is bound to a consumer that launches suspicious code.</p>
+<h2 id="7-acquisition-methods">7. Acquisition Methods<a class="headerlink" href="#7-acquisition-methods" title="Permanent link">&para;</a></h2>
+<p>Acquire WMI repository data:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>C:\Windows\System32\wbem\Repository\
+</code></pre></div>
+<p>Also collect:</p>
+<ul>
+<li>Microsoft-Windows-WMI-Activity event logs</li>
+<li>PowerShell logs</li>
+<li>Security and System event logs</li>
+<li>Sysmon logs if installed</li>
+<li>MFT and USN data for repository and referenced files</li>
+<li>scripts and binaries referenced by consumers</li>
+<li>EDR WMI telemetry</li>
+</ul>
+<p>Live WMI enumeration can be useful but should not replace forensic collection. Malware or corruption can affect live views.</p>
+<p>Document:</p>
+<ul>
+<li>host name</li>
+<li>collection time in UTC</li>
+<li>repository files collected</li>
+<li>namespaces queried</li>
+<li>enumeration tool and command line</li>
+<li>event logs collected</li>
+<li>whether source was live or offline</li>
+</ul>
+<h2 id="8-interpretation">8. Interpretation<a class="headerlink" href="#8-interpretation" title="Permanent link">&para;</a></h2>
+<p>Interpret WMI subscriptions as trigger-action configuration.</p>
+<p>Example observation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Filter: DailyUpdateFilter
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Query: SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE ...
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Consumer: CommandLineEventConsumer
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>CommandLineTemplate: powershell.exe -ExecutionPolicy Bypass -File C:\Users\Public\update.ps1
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>Binding: DailyUpdateFilter -&gt; CommandLineEventConsumer
+</code></pre></div>
+<p>Reasonable inference:</p>
+<ul>
+<li>WMI contains a permanent event subscription configured to launch PowerShell with a script in <code>C:\Users\Public</code> when the filter condition is met.</li>
+<li>The consumer action and path are suspicious.</li>
+</ul>
+<p>Unsupported conclusion:</p>
+<ul>
+<li>"The WMI subscription executed successfully."</li>
+</ul>
+<p>Execution requires trigger evidence, process creation logs, PowerShell logs, EDR telemetry, or downstream file/network effects.</p>
+<h2 id="9-strengths">9. Strengths<a class="headerlink" href="#9-strengths" title="Permanent link">&para;</a></h2>
+<p>WMI persistence evidence has several strengths:</p>
+<ul>
+<li>Shows hidden trigger-action automation.</li>
+<li>Can reveal persistence missed by common autorun checks.</li>
+<li>Consumer commands may expose attacker scripts or binaries.</li>
+<li>Bindings provide clear relationships between trigger and action.</li>
+<li>Sysmon can record filter, consumer, and binding creation when configured.</li>
+<li>Correlates strongly with PowerShell and process telemetry.</li>
+</ul>
+<p>WMI evidence can explain recurring behavior that lacks ordinary Startup, service, or scheduled task artifacts.</p>
+<h2 id="10-weaknesses">10. Weaknesses<a class="headerlink" href="#10-weaknesses" title="Permanent link">&para;</a></h2>
+<p>Limitations include:</p>
+<ul>
+<li>Repository parsing can be difficult.</li>
+<li>Live enumeration may miss deleted or corrupted historical evidence.</li>
+<li>Event logging may be limited unless WMI-Activity or Sysmon is available.</li>
+<li>Configuration does not prove trigger or successful execution.</li>
+<li>Legitimate management products use WMI heavily.</li>
+<li>Namespaces and consumers require specialized interpretation.</li>
+<li>Attackers may delete subscriptions after use.</li>
+</ul>
+<p>WMI persistence is powerful but often requires deeper triage skill than Run keys or services.</p>
+<h2 id="11-common-mistakes">11. Common Mistakes<a class="headerlink" href="#11-common-mistakes" title="Permanent link">&para;</a></h2>
+<h3 id="mistake-1-looking-only-for-consumers">Mistake 1: Looking Only for Consumers<a class="headerlink" href="#mistake-1-looking-only-for-consumers" title="Permanent link">&para;</a></h3>
+<p>A consumer without a binding may not be active persistence. Confirm filter, consumer, and binding.</p>
+<h3 id="mistake-2-ignoring-the-trigger-query">Mistake 2: Ignoring the Trigger Query<a class="headerlink" href="#mistake-2-ignoring-the-trigger-query" title="Permanent link">&para;</a></h3>
+<p>The filter query explains when the action runs. It may trigger on time, logon, process creation, uptime, or another system condition.</p>
+<h3 id="mistake-3-treating-subscription-presence-as-execution">Mistake 3: Treating Subscription Presence As Execution<a class="headerlink" href="#mistake-3-treating-subscription-presence-as-execution" title="Permanent link">&para;</a></h3>
+<p>The subscription is configured automation. Confirm that it fired and launched the action.</p>
+<h3 id="mistake-4-ignoring-legitimate-wmi-use">Mistake 4: Ignoring Legitimate WMI Use<a class="headerlink" href="#mistake-4-ignoring-legitimate-wmi-use" title="Permanent link">&para;</a></h3>
+<p>Enterprise management and monitoring tools often use WMI. Suspiciousness depends on command, namespace, timing, creator, and behavior.</p>
+<h3 id="mistake-5-ignoring-referenced-files">Mistake 5: Ignoring Referenced Files<a class="headerlink" href="#mistake-5-ignoring-referenced-files" title="Permanent link">&para;</a></h3>
+<p>If the consumer launches a script or executable, investigate that file with MFT, USN, hashes, and execution artifacts.</p>
+<h2 id="12-questions-it-can-answer">12. Questions It Can Answer<a class="headerlink" href="#12-questions-it-can-answer" title="Permanent link">&para;</a></h2>
+<p>WMI artifacts can often help answer:</p>
+<ul>
+<li>Is there a permanent WMI event subscription?</li>
+<li>What condition triggers it?</li>
+<li>What action does it execute?</li>
+<li>Is the filter bound to a consumer?</li>
+<li>Does the consumer launch a suspicious command, script, or binary?</li>
+<li>Does WMI evidence align with PowerShell, process, and file system activity?</li>
+</ul>
+<h2 id="13-questions-it-cannot-answer">13. Questions It Cannot Answer<a class="headerlink" href="#13-questions-it-cannot-answer" title="Permanent link">&para;</a></h2>
+<p>WMI artifacts cannot answer by themselves:</p>
+<ul>
+<li>Whether the subscription fired.</li>
+<li>Whether the launched command succeeded.</li>
+<li>Whether the referenced script was malicious.</li>
+<li>Which remote host created the subscription without supporting telemetry.</li>
+<li>Whether a missing subscription means WMI was never abused.</li>
+<li>Whether all WMI activity was logged.</li>
+</ul>
+<h2 id="14-evidence-correlation">14. Evidence Correlation<a class="headerlink" href="#14-evidence-correlation" title="Permanent link">&para;</a></h2>
+<p>WMI persistence should be correlated across repository, event, process, and file system evidence.</p>
+<table>
+<thead>
+<tr>
+<th>Correlating Artifact</th>
+<th>Added Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WMI-Activity logs</td>
+<td>WMI operation and error context.</td>
+</tr>
+<tr>
+<td>Sysmon 19/20/21</td>
+<td>Event filter, consumer, and binding creation if configured.</td>
+</tr>
+<tr>
+<td>PowerShell logs</td>
+<td>Commands used to create or execute WMI actions.</td>
+</tr>
+<tr>
+<td>Security 4688 / EDR</td>
+<td>Process creation from WMI provider host or PowerShell.</td>
+</tr>
+<tr>
+<td>MFT / USN</td>
+<td>Referenced script or binary creation and deletion.</td>
+</tr>
+<tr>
+<td>Scheduled Tasks / Services / Run keys</td>
+<td>Alternative persistence comparison.</td>
+</tr>
+<tr>
+<td>Network logs</td>
+<td>Post-execution destination behavior.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="correlation-map">Correlation Map<a class="headerlink" href="#correlation-map" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>WMI subscription: filter + consumer + binding
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>        |
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        +--&gt; PowerShell logs: creation command or launched script
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>        |
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        +--&gt; Sysmon / WMI-Activity: subscription creation or execution context
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        |
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        +--&gt; MFT / USN: referenced file staged
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        |
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        +--&gt; 4688 / EDR: command executed by WMI context
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        |
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        +--&gt; Network logs: post-execution behavior
+</code></pre></div>
+<h2 id="15-investigation-walkthrough">15. Investigation Walkthrough<a class="headerlink" href="#15-investigation-walkthrough" title="Permanent link">&para;</a></h2>
+<h3 id="scenario">Scenario<a class="headerlink" href="#scenario" title="Permanent link">&para;</a></h3>
+<p>A host repeatedly launches PowerShell shortly after boot, but Run keys, services, and scheduled tasks do not explain it.</p>
+<h3 id="step-1-enumerate-wmi-subscriptions">Step 1: Enumerate WMI Subscriptions<a class="headerlink" href="#step-1-enumerate-wmi-subscriptions" title="Permanent link">&para;</a></h3>
+<p>Observation:</p>
+<ul>
+<li>A permanent event subscription exists in <code>root\subscription</code>.</li>
+<li>The filter watches for system uptime or timer-related conditions.</li>
+</ul>
+<p>Inference:</p>
+<ul>
+<li>WMI contains trigger logic that may explain recurring execution.</li>
+</ul>
+<h3 id="step-2-inspect-consumer-action">Step 2: Inspect Consumer Action<a class="headerlink" href="#step-2-inspect-consumer-action" title="Permanent link">&para;</a></h3>
+<p>Observation:</p>
+<ul>
+<li>The consumer is a <code>CommandLineEventConsumer</code>.</li>
+<li>It launches PowerShell with <code>C:\Users\Public\update.ps1</code>.</li>
+</ul>
+<p>Inference:</p>
+<ul>
+<li>The action is suspicious and should be correlated with file and process evidence.</li>
+</ul>
+<h3 id="step-3-validate-binding">Step 3: Validate Binding<a class="headerlink" href="#step-3-validate-binding" title="Permanent link">&para;</a></h3>
+<p>Observation:</p>
+<ul>
+<li>A <code>__FilterToConsumerBinding</code> connects the filter to the consumer.</li>
+</ul>
+<p>Inference:</p>
+<ul>
+<li>The trigger and action are connected as an active subscription.</li>
+</ul>
+<h3 id="step-4-correlate-execution">Step 4: Correlate Execution<a class="headerlink" href="#step-4-correlate-execution" title="Permanent link">&para;</a></h3>
+<p>Observation:</p>
+<ul>
+<li>EDR telemetry shows <code>WmiPrvSE.exe</code> launching <code>powershell.exe</code>.</li>
+<li>PowerShell logs show script block content from <code>update.ps1</code>.</li>
+</ul>
+<p>Inference:</p>
+<ul>
+<li>Execution of the WMI-triggered action is supported.</li>
+</ul>
+<h3 id="step-5-write-the-finding">Step 5: Write the Finding<a class="headerlink" href="#step-5-write-the-finding" title="Permanent link">&para;</a></h3>
+<p>Precise wording:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>The host contains a permanent WMI event subscription consisting of an event filter, CommandLineEventConsumer, and binding. The consumer is configured to launch PowerShell with C:\Users\Public\update.ps1. Process telemetry showing WmiPrvSE.exe launching PowerShell and PowerShell logs from the referenced script support execution of the configured WMI persistence mechanism.
+</code></pre></div>
+<h2 id="16-ascii-timeline">16. ASCII Timeline<a class="headerlink" href="#16-ascii-timeline" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>03:12:42  MFT / USN: update.ps1 created
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>03:14:18  PowerShell: WMI subscription creation command if logged
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>03:14:20  Sysmon 19/20/21: filter, consumer, binding if configured
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>08:00:05  WMI trigger condition met
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>08:00:06  EDR / 4688: WmiPrvSE.exe launches powershell.exe
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>08:00:07  4104: update.ps1 script block logged
+</code></pre></div>
+<h2 id="17-investigators-mindset">17. Investigator's Mindset<a class="headerlink" href="#17-investigators-mindset" title="Permanent link">&para;</a></h2>
+<p>WMI persistence is not one object. It is a relationship. Find the trigger, the action, and the binding.</p>
+<p>Ask:</p>
+<ul>
+<li>Which namespace contains the subscription?</li>
+<li>What does the filter query watch for?</li>
+<li>What consumer class is used?</li>
+<li>What command, script, or executable is configured?</li>
+<li>Is there a binding connecting filter and consumer?</li>
+<li>What created the subscription?</li>
+<li>Did WMI actually launch the action?</li>
+<li>What happened after launch?</li>
+</ul>
+<p>Think in trigger-action-correlation terms.</p>
+<h2 id="18-key-takeaways">18. Key Takeaways<a class="headerlink" href="#18-key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li>WMI is legitimate Windows management infrastructure.</li>
+<li>Permanent WMI event subscriptions can be abused for persistence.</li>
+<li>The core model is filter, consumer, and binding.</li>
+<li><code>CommandLineEventConsumer</code> can launch a process when an event is delivered.</li>
+<li>Repository evidence should be correlated with WMI-Activity, Sysmon, PowerShell, process, and file system evidence.</li>
+<li>Subscription presence proves configuration, not successful execution.</li>
+<li>Strong findings validate trigger, action, binding, and execution behavior.</li>
+</ul>
+<h2 id="19-review-questions">19. Review Questions<a class="headerlink" href="#19-review-questions" title="Permanent link">&para;</a></h2>
+<ol>
+<li>What are the three core components of a permanent WMI event subscription?</li>
+<li>Why is a binding important?</li>
+<li>What does <code>CommandLineEventConsumer</code> do?</li>
+<li>Why does subscription presence not prove execution?</li>
+<li>Which artifacts would you use to confirm WMI-triggered PowerShell execution?</li>
+</ol>
+<h2 id="20-references">20. References<a class="headerlink" href="#20-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Microsoft Learn, "Windows Management Instrumentation": https://learn.microsoft.com/en-us/windows/win32/wmisdk/wmi-start-page</li>
+<li>Microsoft Learn, "WMI Architecture": https://learn.microsoft.com/en-us/windows/win32/wmisdk/wmi-architecture</li>
+<li>Microsoft Learn, "Receiving a WMI Event": https://learn.microsoft.com/en-us/windows/win32/wmisdk/receiving-a-wmi-event</li>
+<li>Microsoft Learn, "CommandLineEventConsumer class": https://learn.microsoft.com/en-us/windows/win32/wmisdk/commandlineeventconsumer</li>
+<li>MITRE ATT&amp;CK, "Event Triggered Execution: Windows Management Instrumentation Event Subscription": https://attack.mitre.org/techniques/T1546/003/</li>
+<li>SANS, "Finding Evil WMI Event Consumers with Disk Forensics": https://www.sans.org/blog/finding-evil-wmi-event-consumers-with-disk-forensics</li>
+<li>Elastic, "Persistence via WMI Event Subscription": https://www.elastic.co/guide/en/security/current/persistence-via-wmi-event-subscription.html</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../16-chapter-16-powershell-logging/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 16. Chapter 16: PowerShell Logging">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                16. Chapter 16: PowerShell Logging
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../18-chapter-18-rdp-logons-and-lateral-movement-artifacts/" class="md-footer__link md-footer__link--next" aria-label="Next: 18. Chapter 18: RDP, Logons, and Lateral Movement Artifacts">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                18. Chapter 18: RDP, Logons, and Lateral Movement Artifacts
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
