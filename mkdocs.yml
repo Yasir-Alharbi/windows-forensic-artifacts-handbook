@@ -6,8 +6,6 @@ site_url: "https://yasir-alharbi.github.io/windows-forensic-artifacts-handbook/"
 theme:
   name: material
   language: en
-  logo: assets/dfir-detective-logo.svg
-  favicon: assets/dfir-detective-logo.svg
   features:
     - navigation.tabs
     - navigation.sections
