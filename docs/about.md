@@ -30,7 +30,3 @@ This is an independent educational handbook and is not affiliated with SANS.
 - Malware analysts
 - GCFA/FOR508 students
 
-## Current Status
-
-The 24-chapter draft is complete and converted into MkDocs Material format. Recommended next steps are peer technical review, copyediting, reference normalization, and deployment.
-

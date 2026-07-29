@@ -16,9 +16,6 @@ The central discipline is simple: separate observation, evidence, inference, ass
     - GitHub: [github.com/Yasir-Alharbi](https://github.com/Yasir-Alharbi)
     - LinkedIn: [linkedin.com/in/Yasir-T-Alharbi](https://www.linkedin.com/in/Yasir-T-Alharbi)
 
-!!! note "Editorial Status"
-    This MkDocs site is generated from the completed 24-chapter manuscript draft. It is ready for technical review, web publishing, and further editorial polish.
-
 ## Chapters
 
 | # | Chapter |
