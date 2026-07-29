@@ -1,0 +1,27 @@
+/* MkDocs Material polish for the Windows forensic artifacts handbook. */
+
+:root {
+  --md-text-font: "Inter", "Segoe UI", Arial, sans-serif;
+  --md-code-font: "Cascadia Mono", "Consolas", monospace;
+}
+
+.md-typeset h1 {
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.md-typeset h2 {
+  margin-top: 1.8em;
+}
+
+.md-typeset table:not([class]) {
+  font-size: 0.72rem;
+}
+
+.md-typeset code {
+  border-radius: 0.2rem;
+}
+
+.md-typeset pre > code {
+  white-space: pre-wrap;
+}
