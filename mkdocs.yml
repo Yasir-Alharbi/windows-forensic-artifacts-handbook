@@ -80,3 +80,6 @@ plugins:
 
 extra_css:
   - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/cloudflare-analytics.js
